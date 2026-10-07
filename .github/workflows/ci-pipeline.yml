@@ -1,34 +1,38 @@
-name: Production Multi-Step CI
+name: Enterprise Multi-Environment Pipeline
 
 on:
   push:
     branches:
       - main
+      - staging
+      - dev
 
 jobs:
-  code-inspection:
+  inspect-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository Code
+      - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      - name: Inspect Code Architecture
-        run: |
-          echo "Inspecting files..."
-          ls -la
-          echo "Code inspection passed successfully!"
-
-  application-execution:
-    needs: code-inspection
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository Code
-        uses: actions/checkout@v4
-
-      - name: Set up JavaScript Runtime
+      - name: Setup Node.js Engine
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Run Application Script
+      - name: Deploy to Dev Environment
+        if: github.ref == 'refs/heads/dev'
+        env:
+          TARGET_ENV: 'Development Sandbox'
+        run: node app.js
+
+      - name: Deploy to Staging Environment
+        if: github.ref == 'refs/heads/staging'
+        env:
+          TARGET_ENV: 'Staging QA Environment'
+        run: node app.js
+
+      - name: Deploy to Production Environment
+        if: github.ref == 'refs/heads/main'
+        env:
+          TARGET_ENV: 'Production Live Platform'
         run: node app.js
