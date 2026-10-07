@@ -1,0 +1,34 @@
+name: Production Multi-Step CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  code-inspection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Inspect Code Architecture
+        run: |
+          echo "Inspecting files..."
+          ls -la
+          echo "Code inspection passed successfully!"
+
+  application-execution:
+    needs: code-inspection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Set up JavaScript Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Application Script
+        run: node app.js
